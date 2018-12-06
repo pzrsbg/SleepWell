@@ -124,6 +124,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\SleepWellDB.mdf" />
+    <Content Include="App_Data\SleepWellDB_log.ldf">
+      <DependentUpon>SleepWellDB.mdf</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-reboot.css" />
@@ -171,10 +175,22 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="DAL\SleepWellContext.cs" />
+    <Compile Include="DAL\SleepWellInitializer.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Settings.cs" />
+    <Compile Include="Migrations\201812062346598_InitialCreate.cs" />
+    <Compile Include="Migrations\201812062346598_InitialCreate.Designer.cs">
+      <DependentUpon>201812062346598_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Bill.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Reclamation.cs" />
+    <Compile Include="Models\Reservation.cs" />
+    <Compile Include="Models\Room.cs" />
+    <Compile Include="Models\Setting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -199,7 +215,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Views\Home\" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +222,11 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\index.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201812062346598_InitialCreate.resx">
+      <DependentUpon>201812062346598_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
