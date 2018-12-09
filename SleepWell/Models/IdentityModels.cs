@@ -31,6 +31,7 @@ namespace SleepWell.Models
         [Display(Name = "Miasto")]
         public string City { get; set; }
         [Display(Name = "Kod pocztowy")]
+        [DataType(DataType.PostalCode)]
         public string PostalCode { get; set; }
         [Display(Name = "Numer NIP")]
         public string NIP { get; set; }

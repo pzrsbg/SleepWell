@@ -17,6 +17,7 @@ namespace SleepWell.Migrations
         protected override void Seed(SleepWellContext context)
         {
             SleepWellInitializer.SeedCustomData(context);
+            SleepWellInitializer.InitializeIdentityForEF(context);
 
             //  This method will be called after migrating to the latest version.
 

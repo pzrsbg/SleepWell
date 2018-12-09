@@ -14,7 +14,7 @@ namespace SleepWell.Controllers
             return View();
         }
 
-        public ActionResult StaticContent(string viewname)
+        public ActionResult StaticPage(string viewname)
         {
             return View(viewname);
         }
