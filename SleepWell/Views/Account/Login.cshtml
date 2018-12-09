@@ -1,0 +1,137 @@
+﻿@model SleepWell.ViewModels.LoginRegisterViewModel
+@{
+    ViewBag.Title = "Zaloguj się";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+
+<div class="col-8">
+    <h2>Masz już konto? <span class="green">Zaloguj się!</span></h2>
+    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationMessage("loginerror", "")
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.LoginViewModel.Email)
+                @Html.LabelFor(o => o.LoginViewModel.Email)
+            </div>
+            <div class="col-6">
+                @Html.PasswordFor(o => o.LoginViewModel.Password)
+                @Html.LabelFor(o => o.LoginViewModel.Password)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col form-check">
+                <label class="form-check-label">@Html.CheckBoxFor(o => o.LoginViewModel.RememberMe, new { id = Html.NameFor(o => o.LoginViewModel.RememberMe), @class = "form-check-input" })Zapamiętaj mnie</label>
+            </div>
+        </div>
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <button class="loginBtn--facebook">Zaloguj przez Facebook</button>
+                <button class="loginBtn--google">Zaloguj przez Google+</button>
+            </div>
+            <div class="col-auto">
+                <input type="submit" value="Zaloguj się">
+            </div>
+        </div>
+    }
+    <h2>Rejestracja <span class="green">użytkownika</span></h2>
+    @using (Html.BeginForm("Register", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.FirstName)
+                @Html.LabelFor(o => o.RegisterViewModel.FirstName)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.FirstName)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.LastName)
+                @Html.LabelFor(o => o.RegisterViewModel.LastName)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.LastName)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.Address)
+                @Html.LabelFor(o => o.RegisterViewModel.Address)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.Address)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.City)
+                @Html.LabelFor(o => o.RegisterViewModel.City)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.City)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.PostalCode)
+                @Html.LabelFor(o => o.RegisterViewModel.PostalCode)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.PostalCode)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.PhoneNumber)
+                @Html.LabelFor(o => o.RegisterViewModel.PhoneNumber)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.PhoneNumber)</p>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <div class="col form-check">
+                <label class="form-check-label">
+                    @Html.CheckBoxFor(o => o.RegisterViewModel.IsCompany, new { @class = "form-check-input, isCompanyCheckbox" })
+                    @Html.LabelFor(o => o.RegisterViewModel.IsCompany)
+                </label>
+            </div>
+        </div>
+        <div class="row isCompanyBox">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.CompanyName)
+                @Html.LabelFor(o => o.RegisterViewModel.CompanyName)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.CompanyName)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.NIP)
+                @Html.LabelFor(o => o.RegisterViewModel.NIP)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.NIP)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.Email)
+                @Html.LabelFor(o => o.RegisterViewModel.Email)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.Email)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.RegisterViewModel.ConfirmEmail)
+                @Html.LabelFor(o => o.RegisterViewModel.ConfirmEmail)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.ConfirmEmail)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.PasswordFor(o => o.RegisterViewModel.Password)
+                @Html.LabelFor(o => o.RegisterViewModel.Password)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.Password)</p>
+            </div>
+            <div class="col-6">
+                @Html.PasswordFor(o => o.RegisterViewModel.ConfirmPassword)
+                @Html.LabelFor(o => o.RegisterViewModel.ConfirmPassword)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.ConfirmPassword)</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col form-check">
+                <label class="form-check-label">
+                    @Html.CheckBoxFor(o => o.RegisterViewModel.RegAccept, new { @class = "form-check-input" })
+                    Akceptuję regulamin i wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rejestracji oraz korzystania z usług oferowanych przez serwis (zgodnie z Ustawą z dnia 29.08.1997 roku o Ochronie Danych Osobowych; tekst jednolity: Dz. U. 2016 r. poz. 922).
+                </label>
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.RegisterViewModel.RegAccept)</p>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <input type="submit" value="Załóż konto">
+            </div>
+        </div>
+    }
+</div>

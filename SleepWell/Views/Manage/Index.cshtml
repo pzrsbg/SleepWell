@@ -1,0 +1,127 @@
+﻿@model SleepWell.ViewModels.ManageViewModel
+@{
+    ViewBag.Title = "Zarządzanie kontem";
+}
+
+<div class="col-12">
+    <h2>Moje <span class="green">konto</span></h2>
+    @if (Model.Message.HasValue)
+    {
+        switch (Model.Message)
+        {
+            case SleepWell.Controllers.ManageController.ManageMessageId.ChangePasswordSuccess:
+                @:<div class="alert alert-success" role="alert">Hasło zostało zmienione!</div>
+                break;
+            case SleepWell.Controllers.ManageController.ManageMessageId.Error:
+                @:<div class="alert alert-danger" role="alert">Wystąpił błąd:<br />@Html.ValidationMessage("password-error")</div>
+                break;
+        }
+    }
+
+    <h3>Zmień dane</h3>
+    @using (@Html.BeginForm("EditProfile", "Manage"))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.FirstName)
+                @Html.LabelFor(o => o.EditProfileViewModel.FirstName)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.FirstName)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.LastName)
+                @Html.LabelFor(o => o.EditProfileViewModel.LastName)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.LastName)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.Address)
+                @Html.LabelFor(o => o.EditProfileViewModel.Address)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.Address)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.City)
+                @Html.LabelFor(o => o.EditProfileViewModel.City)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.City)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.PostalCode)
+                @Html.LabelFor(o => o.EditProfileViewModel.PostalCode)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.PostalCode)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.PhoneNumber)
+                @Html.LabelFor(o => o.EditProfileViewModel.PhoneNumber)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.PhoneNumber)</p>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <div class="col form-check">
+                <label class="form-check-label">
+                    @Html.CheckBoxFor(o => o.EditProfileViewModel.IsCompany, new { @class = "form-check-input, isCompanyCheckbox" })
+                    @Html.LabelFor(o => o.EditProfileViewModel.IsCompany)
+                </label>
+            </div>
+        </div>
+        <div class="row isCompanyBox">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.CompanyName)
+                @Html.LabelFor(o => o.EditProfileViewModel.CompanyName)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.CompanyName)</p>
+            </div>
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.NIP)
+                @Html.LabelFor(o => o.EditProfileViewModel.NIP)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.NIP)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.TextBoxFor(o => o.EditProfileViewModel.Email)
+                @Html.LabelFor(o => o.EditProfileViewModel.Email)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditProfileViewModel.Email)</p>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <input type="submit" value="Zaktualizuj dane">
+            </div>
+        </div>
+    }
+
+
+    <h3>Zmień hasło</h3>
+    @using (@Html.BeginForm("EditPassword", "Manage", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-6">
+                @Html.PasswordFor(o => o.EditPasswordViewModel.OldPassword)
+                @Html.LabelFor(o => o.EditPasswordViewModel.OldPassword)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditPasswordViewModel.OldPassword)</p>
+            </div>
+            <div class="col-6">
+                @Html.PasswordFor(o => o.EditPasswordViewModel.NewPassword)
+                @Html.LabelFor(o => o.EditPasswordViewModel.NewPassword)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditPasswordViewModel.NewPassword)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                @Html.PasswordFor(o => o.EditPasswordViewModel.ConfirmPassword)
+                @Html.LabelFor(o => o.EditPasswordViewModel.ConfirmPassword)
+                <p class="input-warning">@Html.ValidationMessageFor(o => o.EditPasswordViewModel.ConfirmPassword)</p>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <input type="submit" value="Zmień hasło">
+            </div>
+        </div>
+    }
+</div>
+
+

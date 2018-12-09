@@ -120,12 +120,12 @@ namespace SleepWell.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditPassword([Bind(Prefix = "ChangePasswordViewModel")]EditPasswordViewModel model)
+        public async Task<ActionResult> EditPassword([Bind(Prefix = "EditPasswordViewModel")]EditPasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 TempData["ViewData"] = ViewData;
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { Message = ManageMessageId.Error });
             }
 
             var result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
@@ -144,7 +144,7 @@ namespace SleepWell.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["ViewData"] = ViewData;
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { Message = ManageMessageId.Error });
             }
 
             return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
