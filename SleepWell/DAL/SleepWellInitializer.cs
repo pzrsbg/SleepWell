@@ -20,7 +20,15 @@ namespace SleepWell.DAL
                 new Setting(){ SettingId = 1, Name = "NazwaPensjonatu", Value = "Sleep Well" }
             };
 
+            var rooms = new List<Room>
+            {
+                new Room(){ RoomId = 1, RoomName = "Apartament Złoty", MaxPeople = 2, UnitCost = 80, RoomStandard = RoomStandard.BedAndBreakfast, PhotoUrl = "ap01.jpg" },
+                new Room(){ RoomId = 2, RoomName = "Apartament Platynowy", MaxPeople = 2, UnitCost = 140, RoomStandard = RoomStandard.Exclusive, PhotoUrl = "ap02.jpg" },
+                new Room(){ RoomId = 3, RoomName = "Apartament Srebrny", MaxPeople = 3, UnitCost = 60, RoomStandard = RoomStandard.Economic, PhotoUrl = "ap03.jpg" }
+            };
+
             settings.ForEach(s => context.Settings.AddOrUpdate(s));
+            rooms.ForEach(r => context.Rooms.AddOrUpdate(r));
             context.SaveChanges();
         }
 
