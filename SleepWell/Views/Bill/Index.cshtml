@@ -20,9 +20,9 @@
 
             @foreach (var bill in Model)
                 {
-            <tr @if (bill.BillState == SpodIglyMVC.Models.BillState.New) { <text> class="newBill" </text>      }>
+            <tr @if (bill.BillState == SpodIglyMVC.Models.BillState.New) { <text> class="newBill" </text>       }>
                 <td>
-                    <strong>Nr zamówienia: </strong>@bill.BillId
+                    <strong>Nr rachunku: </strong>@bill.BillId
                 </td>
                 <td>
                     <strong>Data: </strong>
@@ -69,11 +69,11 @@
                                     {
                             <li>
                                 <article>
-                                    <a class="productdetailslink" href="@Url.Action("Details", "Store", new { id = billItem.AlbumId })">
-                                        <img class="album-cover" src="@Url.Content("~/Content/Covers/" + billItem.Album.CoverFileName)" />
+                                    <a class="productdetailslink" href="@Url.Action("Details", "Hotel", new { id = billItem.ReservationId })">
+                                        
                                         <h1>
-                                            @billItem.Album.ArtistName - @billItem.Album.AlbumTitle<br />
-                                            <strong>sztuk: @billItem.Quantity, łącznie: @(billItem.Quantity * @billItem.UnitPrice)  zł</strong>
+                                            @billItem.Bill.ReservationId - @billItem.Room.RoomName<br />
+                                            <strong>okres: @billItem.Quantity, łącznie: @(billItem.Quantity * @billItem.UnitPrice)  zł</strong>
                                         </h1>
                                     </a>
                                 </article>
