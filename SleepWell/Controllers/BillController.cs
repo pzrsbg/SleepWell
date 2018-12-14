@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-
+using Microsoft.AspNet.Identity;
+using SleepWell.DAL;
+using SleepWell.Models;
 
 
 namespace SleepWell.Controllers
@@ -11,6 +13,7 @@ namespace SleepWell.Controllers
 
     public class BillController : Controller
     {
+        private SleepWellContext db = new SleepWellContext();
 
         public ActionResult BillsList()
         {
@@ -22,14 +25,12 @@ namespace SleepWell.Controllers
             // For admin users - return all bills
             if (isAdmin)
             {
-                userBills = db.Bills.Include("BillItems").
-                    BillByDescending(o => o.DateCreated).ToArray();
+                userBills = db.Bills.OrderByDescending(o => o.BillId).ToArray();
             }
             else
             {
                 var userId = User.Identity.GetUserId();
-                userBills = db.Bills.Where(o => o.UserId == userId).Include("BillItems").
-                    BillByDescending(o => o.DateCreated).ToArray();
+                userBills = db.Bills.Where(o => o.Reservation.UserId == userId).OrderByDescending(o => o.BillId).ToArray();
             }
 
             return View(userBills);
