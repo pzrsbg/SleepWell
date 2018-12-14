@@ -18,6 +18,7 @@
 
         <table id="bills-table">
 
+
             @foreach (var bill in Model)
                 {
             <tr @if (bill.PaymentState == SpodIglyMVC.Models.PaymentState.New) { <text> class="newBill" </text>       }>
