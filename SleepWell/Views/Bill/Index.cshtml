@@ -9,7 +9,7 @@
 
     <hr />
 
-    <h2 class="manageHeader">Twoje zamówienia</h2>
+    <h2 class="manageHeader">Twoje rachunki</h2>
 
     <div>
 
@@ -57,7 +57,7 @@
                     @bill.Comment
                 </td>
                 <td>
-                    <strong>Łączny koszt:</strong> @bill.TotalPrice zł
+                    <strong>Łączny koszt:</strong> @bill.Total zł
                 </td>
             </tr>
             <tr>
@@ -73,7 +73,10 @@
                                         
                                         <h1>
                                             @billItem.Bill.ReservationId - @billItem.Room.RoomName<br />
-                                            <strong>okres: @billItem.Quantity, łącznie: @(billItem.Quantity * @billItem.UnitPrice)  zł</strong>
+                                            <strong>okres: (@reservationItem.StartDate - @reservationItem.EndDate), łącznie: @(billItem.Quantity * @billItem.UnitPrice)  zł</strong>
+                                       
+                                            <br />
+                                            <strong>Status: @billItem.PaymentState</strong>
                                         </h1>
                                     </a>
                                 </article>
@@ -119,7 +122,7 @@
         var action = f.attr("action");
         var serializedForm = f.serialize();
         $.post(action, serializedForm).done(function (data) {
-            if (data == '@SpodIglyMVC.Models.BillState.New.ToString()') {
+            if (data == '@SpodIglyMVC.Models.PaymentState.New.ToString()') {
                 tr.addClass("newBill")
             }
             else {
