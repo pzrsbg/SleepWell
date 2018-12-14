@@ -11,138 +11,46 @@ namespace SleepWell.Controllers
 
     public class BillController : Controller
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private StoreContext db = new StoreContext();
-
-        private ISessionManager sessionManager { get; set; }
-
-        private ApplicationUserManager _userManager;
-
-        public BillController(IMailService mailService, ISessionManager sessionManager)
+        public ActionResult BillsList()
         {
-            this.mailService = mailService;
+            bool isAdmin = User.IsInRole("Admin");
+            ViewBag.UserIsAdmin = isAdmin;
 
-            this.sessionManager = sessionManager;
-        }
+            IEnumerable<Bill> userBills;
 
-        public ApplicationUserManager UserManager
-        {
-            get
+            // For admin users - return all bills
+            if (isAdmin)
             {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
-        public ActionResult Index()
-        {
-            ShoppingBillManager shoppingBillManager = new ShoppingBillManager(this.sessionManager, this.db);
-
-            var billItems = shoppingBillManager.GetBill();
-            var billTotalPrice = shoppingBillManager.GetBillTotalPrice();
-
-            BillViewModel billVM = new BillViewModel() { BillItems = billItems, TotalPrice = billTotalPrice };
-
-            return View(billVM);
-        }
-
-        public ActionResult AddToBill(int id)
-        {
-            ShoppingBillManager shoppingBill = new ShoppingBillManager(this.sessionManager, this.db);
-            shoppingBill.AddToBill(id);
-
-            logger.Info("Added product {0} to bill", id);
-
-            return RedirectToAction("Index", "Bill");
-        }
-
-
-        public int GetBillItemsCount()
-        {
-            ShoppingBillManager shoppingBillManager = new ShoppingBillManager(this.sessionManager, this.db);
-            return shoppingBillManager.GetBillItemsCount();
-        }
-
-        public ActionResult RemoveFromBill(int roomID)
-        {
-            ShoppingBillManager shoppingBillManager = new ShoppingBillManager(this.sessionManager, this.db);
-
-            int itemCount = shoppingBillManager.RemoveFromBill(roomID);
-            int billItemsCount = shoppingBillManager.GetBillItemsCount();
-            decimal billTotal = shoppingBillManager.GetBillTotalPrice();
-
-
-            var result = new BillRemoveViewModel
-            {
-                RemoveItemId = roomID,
-                RemovedItemCount = itemCount,
-                BillTotal = billTotal,
-                BillItemsCount = billItemsCount
-            };
-
-            return Json(result);
-        }
-
-        public async Task<ActionResult> Checkout()
-        {
-            if (Request.IsAuthenticated)
-            {
-                var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-
-                var order = new Order
-                {
-                    FirstName = user.UserData.FirstName,
-                    LastName = user.UserData.LastName,
-                    Address = user.UserData.Address,
-                    CodeAndCity = user.UserData.CodeAndCity,
-                    Email = user.UserData.Email,
-                    PhoneNumber = user.UserData.PhoneNumber
-                };
-
-                return View(order);
+                userBills = db.Bills.Include("BillItems").
+                    BillByDescending(o => o.DateCreated).ToArray();
             }
             else
-                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Checkout", "Bill") });
+            {
+                var userId = User.Identity.GetUserId();
+                userBills = db.Bills.Where(o => o.UserId == userId).Include("BillItems").
+                    BillByDescending(o => o.DateCreated).ToArray();
+            }
+
+            return View(userBills);
         }
+
 
         [HttpPost]
-        public async Task<ActionResult> Checkout(Order orderdetails)
+        [Authorize(Roles = "Admin")]
+        public BillState ChangeBillState(Bill bill)
         {
-            if (ModelState.IsValid)
+            Bill billToModify = db.Bills.Find(bill.BillId);
+            billToModify.BillState = bill.BillState;
+            db.SaveChanges();
+
+            if (billToModify.BillState == BillState.Shipped)
             {
-                logger.Info("Checking out");
-
-                var userId = User.Identity.GetUserId();
-
-                ShoppingBillManager shoppingBillManager = new ShoppingBillManager(this.sessionManager, this.db);
-                var newOrder = shoppingBillManager.CreateOrder(orderdetails, userId);
-
-
-                var user = await UserManager.FindByIdAsync(userId);
-                TryUpdateModel(user.UserData);
-                await UserManager.UpdateAsync(user);
-
-                shoppingBillManager.EmptyBill();
-
-
-                var order = db.Orders.Include("OrderItems").Include("OrderItems.Room").SingleOrDefault(o => o.OrderId == newOrder.OrderId);
-
-
-                this.mailService.SendOrderConfirmationEmail(order);
-
-                return RedirectToAction("OrderConfirmation");
+      
             }
-            else
-                return View(orderdetails);
-        }
 
-        public ActionResult OrderConfirmation()
-        {
-            return View("Index");
+
+            return bill.BillState;
         }
 
     }
