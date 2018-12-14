@@ -1,0 +1,104 @@
+﻿@model SpodIglyMVC.ViewModels.BillViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div id="productlist-content">
+
+    @Html.Action("GenresMenu", "Store")
+
+    <div id="productlist-rightsection">
+        <div id="breadcrumb-section">
+            <img src="../Content/Images/home-small.png" />
+            @Html.MvcSiteMap().SiteMapPath()
+        </div>
+
+        <section class="content-section">
+            <div class="section-header" style="margin-bottom: 0px;">
+                <h1>Twój koszyk</h1>
+            </div>
+            <table id="bill-table">
+                @foreach (var billItem in Model.BillItems)
+                {
+                <tr id="bill-row-@billItem.Room.RoomId">
+                    <td>
+                        <a href="@Url.Action("Details", "Store", new { id = billItem.Room.RoomId })">
+                            <img src="@Url.Content("~/Content/Covers/" + billItem.Room.CoverFileName)" />
+                        </a>
+                    </td>
+                    <td><a href="@Url.Action("Details", "Store", new { id = billItem.Room.RoomId })">@billItem.Room.RoomTitle</a></td>
+                    <td>Ilość: <span id="bill-item-count-@billItem.Room.RoomId">@billItem.Quantity</span></td>
+                    <td>@String.Format("{0:0.##}", billItem.TotalPrice) zł</td>
+                    <td><a class="removeProduct" data-id="@billItem.Room.RoomId" href="#">Usuń</a></td>
+                </tr>
+                }
+
+                <tr id="bill-empty-message" @if (Model.BillItems != null && Model.BillItems.Count > 0) { <text> class="hidden" </text>   }>
+                    <td>Twój koszyk jest pusty. Może warto coś do niego dodać?</td>
+                </tr>
+
+            </table>
+
+            <div id="total-price">
+                Razem: <span id="total-price-value">@String.Format("{0:0.##}", Model.TotalPrice)</span> zł
+            </div>
+
+            <div class="section-button-container">
+                <a class="button-link" href="">Kontynuuj zakupy</a>
+                @if (Model.TotalPrice > 0)
+                {
+                <a class="button-link" id="bill-button-checkout" href="@Url.Action("Checkout", "Bill")">Kupuję</a>
+                }
+            </div>
+        </section>
+
+    </div>
+</div>
+
+
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script type="text/javascript">
+
+    $(function () {
+        $(".removeProduct").click(function () {
+
+            var recordToDelete = $(this).attr("data-id");
+
+            if (recordToDelete != '') {
+
+                // Send post request with AJAX
+                $.post("/Bill/RemoveFromBill", { "roomID": recordToDelete },
+                    function (response) {
+                        // Success
+                        if (response.RemovedItemCount == 0) {
+
+                            $('#bill-row-' + response.RemoveItemId).fadeOut('slow', function () {
+                                if (response.BillItemsCount == 0) {
+                                    $("#bill-empty-message").removeClass("hidden");
+                                }
+                            });
+                        } else {
+                            $('#bill-item-count-' + response.RemoveItemId).text(response.RemovedItemCount);
+                        }
+
+                        if (response.BillItemsCount == 0) {
+                            $('#bill-button-checkout').addClass('hidden');
+                            $('#total-price').addClass('invisible');
+                        }
+
+                        $('#total-price-value').text(response.BillTotal);
+                        $('#bill-header-items-count').text(response.BillItemsCount);
+
+                    });
+
+                return false;
+            }
+        });
+
+    });
+
+</script>
+
+
