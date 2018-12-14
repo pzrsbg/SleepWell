@@ -67,18 +67,18 @@ namespace SleepWell.Controllers
             return shoppingBillManager.GetBillItemsCount();
         }
 
-        public ActionResult RemoveFromBill(int albumID)
+        public ActionResult RemoveFromBill(int roomID)
         {
             ShoppingBillManager shoppingBillManager = new ShoppingBillManager(this.sessionManager, this.db);
 
-            int itemCount = shoppingBillManager.RemoveFromBill(albumID);
+            int itemCount = shoppingBillManager.RemoveFromBill(roomID);
             int billItemsCount = shoppingBillManager.GetBillItemsCount();
             decimal billTotal = shoppingBillManager.GetBillTotalPrice();
 
 
             var result = new BillRemoveViewModel
             {
-                RemoveItemId = albumID,
+                RemoveItemId = roomID,
                 RemovedItemCount = itemCount,
                 BillTotal = billTotal,
                 BillItemsCount = billItemsCount
@@ -128,8 +128,8 @@ namespace SleepWell.Controllers
 
                 shoppingBillManager.EmptyBill();
 
-        
-                var order = db.Orders.Include("OrderItems").Include("OrderItems.Album").SingleOrDefault(o => o.OrderId == newOrder.OrderId);
+
+                var order = db.Orders.Include("OrderItems").Include("OrderItems.Room").SingleOrDefault(o => o.OrderId == newOrder.OrderId);
 
 
                 this.mailService.SendOrderConfirmationEmail(order);
