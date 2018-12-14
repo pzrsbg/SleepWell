@@ -1,104 +1,130 @@
-﻿@model SpodIglyMVC.ViewModels.BillViewModel
-
+﻿@model IEnumerable<SpodIglyMVC.Models.Bill>
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "BillsList";
+    Layout = "~/Views/Shared/_ManageLayout.cshtml";
 }
 
 
-<div id="productlist-content">
+<div>
 
-    @Html.Action("GenresMenu", "Store")
+    <hr />
 
-    <div id="productlist-rightsection">
-        <div id="breadcrumb-section">
-            <img src="../Content/Images/home-small.png" />
-            @Html.MvcSiteMap().SiteMapPath()
+    <h2 class="manageHeader">Twoje zamówienia</h2>
+
+    <div>
+
+        @if (Model.Any())
+        {
+
+        <table id="bills-table">
+
+            @foreach (var bill in Model)
+                {
+            <tr @if (bill.BillState == SpodIglyMVC.Models.BillState.New) { <text> class="newBill" </text>      }>
+                <td>
+                    <strong>Nr zamówienia: </strong>@bill.BillId
+                </td>
+                <td>
+                    <strong>Data: </strong>
+                    @bill.DateCreated.ToString("dd-MM-yyyy")
+                </td>
+                <td>
+                    <strong>Stan: </strong><br />
+
+                    @if (ViewBag.UserIsAdmin)
+                            {
+                                using (Html.BeginForm("ChangeBillState", "Manage"))
+                                {
+                    @Html.HiddenFor(o => bill.BillId)
+                    @Html.EnumDropDownListFor(o => bill.BillState, new { @class = "billstateddl" })
+                                }
+                            }
+                            else
+                            {
+                    @Html.DisplayFor(o => bill.BillState)
+                            }
+
+                </td>
+
+                <td>
+                    <strong>Dane wysyłkowe:</strong><br />
+                    @bill.FirstName @bill.LastName<br />
+                    @bill.Address<br />
+                    @bill.CodeAndCity<br />
+                </td>
+                <td>
+                    <strong>Uwagi: </strong><br />
+                    @bill.Comment
+                </td>
+                <td>
+                    <strong>Łączny koszt:</strong> @bill.TotalPrice zł
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <section>
+                        <ul class="ThreeColumnsStaticCoversList large-cover-list-bottom">
+
+                            @foreach (var billItem in bill.BillItems)
+                                    {
+                            <li>
+                                <article>
+                                    <a class="productdetailslink" href="@Url.Action("Details", "Store", new { id = billItem.AlbumId })">
+                                        <img class="album-cover" src="@Url.Content("~/Content/Covers/" + billItem.Album.CoverFileName)" />
+                                        <h1>
+                                            @billItem.Album.ArtistName - @billItem.Album.AlbumTitle<br />
+                                            <strong>sztuk: @billItem.Quantity, łącznie: @(billItem.Quantity * @billItem.UnitPrice)  zł</strong>
+                                        </h1>
+                                    </a>
+                                </article>
+                            </li>
+                                    }
+
+                        </ul>
+
+                    </section>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6"></td>
+            </tr>
+
+ <!-- Next bill -->
+
+                }
+
+
+        </table>
+        }
+        else
+        {
+        <div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
+            Brak rachunków.
         </div>
-
-        <section class="content-section">
-            <div class="section-header" style="margin-bottom: 0px;">
-                <h1>Twój rachunek</h1>
-            </div>
-            <table id="bill-table">
-                @foreach (var billItem in Model.BillItems)
-                {
-                <tr id="bill-row-@billItem.Room.RoomId">
-                    <td>
-                        <a href="@Url.Action("Details", "Store", new { id = billItem.Room.RoomId })">
-                            <img src="@Url.Content("~/Content/Covers/" + billItem.Room.CoverFileName)" />
-                        </a>
-                    </td>
-                    <td><a href="@Url.Action("Details", "Store", new { id = billItem.Room.RoomId })">@billItem.Room.RoomTitle</a></td>
-                    <td>Ilość: <span id="bill-item-count-@billItem.Room.RoomId">@billItem.Quantity</span></td>
-                    <td>@String.Format("{0:0.##}", billItem.TotalPrice) zł</td>
-                    <td><a class="removeProduct" data-id="@billItem.Room.RoomId" href="#">Usuń</a></td>
-                </tr>
-                }
-
-                <tr id="bill-empty-message" @if (Model.BillItems != null && Model.BillItems.Count > 0) { <text> class="hidden" </text>   }>
-                    <td>Twój koszyk jest pusty. Może warto coś do niego dodać?</td>
-                </tr>
-
-            </table>
-
-            <div id="total-price">
-                Razem: <span id="total-price-value">@String.Format("{0:0.##}", Model.TotalPrice)</span> zł
-            </div>
-
-            <div class="section-button-container">
-                <a class="button-link" href="">Kontynuuj zakupy</a>
-                @if (Model.TotalPrice > 0)
-                {
-                <a class="button-link" id="bill-button-checkout" href="@Url.Action("Checkout", "Bill")">Kupuję</a>
-                }
-            </div>
-        </section>
-
+        }
     </div>
+
+
+
 </div>
 
-
 <script src="~/Scripts/jquery-1.10.2.js"></script>
-<script type="text/javascript">
+<script>
+    $(".billstateddl").on('change', function (e) {
+        //e.preventDefault();
 
-    $(function () {
-        $(".removeProduct").click(function () {
+        var f = $(this.form);
+        var tr = f.closest("tr");
 
-            var recordToDelete = $(this).attr("data-id");
-
-            if (recordToDelete != '') {
-
-                // Send post request with AJAX
-                $.post("/Bill/RemoveFromBill", { "roomID": recordToDelete },
-                    function (response) {
-                        // Success
-                        if (response.RemovedItemCount == 0) {
-
-                            $('#bill-row-' + response.RemoveItemId).fadeOut('slow', function () {
-                                if (response.BillItemsCount == 0) {
-                                    $("#bill-empty-message").removeClass("hidden");
-                                }
-                            });
-                        } else {
-                            $('#bill-item-count-' + response.RemoveItemId).text(response.RemovedItemCount);
-                        }
-
-                        if (response.BillItemsCount == 0) {
-                            $('#bill-button-checkout').addClass('hidden');
-                            $('#total-price').addClass('invisible');
-                        }
-
-                        $('#total-price-value').text(response.BillTotal);
-                        $('#bill-header-items-count').text(response.BillItemsCount);
-
-                    });
-
-                return false;
+        var action = f.attr("action");
+        var serializedForm = f.serialize();
+        $.post(action, serializedForm).done(function (data) {
+            if (data == '@SpodIglyMVC.Models.BillState.New.ToString()') {
+                tr.addClass("newBill")
             }
-        });
-
+            else {
+                tr.removeClass("newBill");
+            }
+          });
     });
-
 </script>
-
-
