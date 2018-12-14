@@ -37,12 +37,12 @@
                                 using (Html.BeginForm("ChangeBillState", "Manage"))
                                 {
                     @Html.HiddenFor(o => bill.BillId)
-                    @Html.EnumDropDownListFor(o => bill.BillState, new { @class = "billstateddl" })
+                    @Html.EnumDropDownListFor(o => bill.PaymentState, new { @class = "billstateddl" })
                                 }
                             }
                             else
                             {
-                    @Html.DisplayFor(o => bill.BillState)
+                    @Html.DisplayFor(o => bill.PaymentState)
                             }
 
                 </td>
