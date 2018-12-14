@@ -20,7 +20,7 @@
 
             @foreach (var bill in Model)
                 {
-            <tr @if (bill.BillState == SpodIglyMVC.Models.BillState.New) { <text> class="newBill" </text>       }>
+            <tr @if (bill.PaymentState == SpodIglyMVC.Models.PaymentState.New) { <text> class="newBill" </text>       }>
                 <td>
                     <strong>Nr rachunku: </strong>@bill.BillId
                 </td>
