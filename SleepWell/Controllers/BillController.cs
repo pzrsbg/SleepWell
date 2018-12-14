@@ -142,7 +142,7 @@ namespace SleepWell.Controllers
 
         public ActionResult OrderConfirmation()
         {
-            return View();
+            return View("Index");
         }
 
     }
