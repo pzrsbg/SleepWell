@@ -32,47 +32,47 @@
                 <div class="col">
                     @Html.ActionLink("Strona główna", "Index", "Home")<span class="spacer">/</span>@ViewBag.Title
                 </div>
-                    <div class="col-auto">
-                        <ul class="main-menu">
-                            @if (Request.IsAuthenticated)
+                <div class="col-auto">
+                    <ul class="main-menu">
+                        @if (Request.IsAuthenticated)
+                        {
+                            if (User.IsInRole("Admin"))
                             {
-                                if (User.IsInRole("Admin"))
-                                {
-                                    <li><strong><a href="@Url.Action("Index", "Admin")">UŻYTKOWNICY</a></strong></li>
-                                }
-                                if (User.IsInRole("Manager"))
-                                {
-                                    <li><strong><a href="@Url.Action("AllReclamations", "Reclamation")">ZARZĄDZANIE REKLAMACJAMI</a></strong></li>
-                                    <li><a href="@Url.Action("AllReservations", "Reservation")">ZARZĄDZANIE REZERWACJAMI</a></li>
-                                }
-                                if (User.IsInRole("Receptionist"))
-                                {
-                                    <li><strong><a href="@Url.Action("AllReservations", "Reservation")">ZARZĄDZANIE REZERWACJAMI</a></strong></li>
-                                    <li><strong><a href="@Url.Action("AllBills", "Bill")">ZARZĄDZANIE RACHUNKAMI</a></strong></li>
-                                }
-                                if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
-                                {
-                                    <li><strong><a href="@Url.Action("Index", "Reservation")">MOJE REZERWACJE</a></strong></li>
-                                    <li><a href="@Url.Action("Index", "Reclamation")">REKLAMACJE</a></li>
-                                }
-
-                                <li><a href="@Url.Action("Index", "Manage")">MOJE KONTO</a></li>
-
-                                <li><a href="#" id="logoutFormSubmit">WYLOGUJ</a></li>
-                                <script>
-                                    var logout_btn = document.getElementById('logoutFormSubmit');
-                                    logout_btn.addEventListener("click", function () {
-                                        document.getElementById('logoutForm').submit();
-                                    });
-                                </script>
+                                <li><strong><a href="@Url.Action("Index", "Admin")">UŻYTKOWNICY</a></strong></li>
                             }
-                            else
+                            if (User.IsInRole("Manager"))
                             {
-                                <li>@Html.ActionLink("LOGOWANIE", "Login", "Account")</li>
-                                <li>@Html.ActionLink("REJESTRACJA", "Login", "Account")</li>
+                                <li><strong><a href="@Url.Action("AllReclamations", "Reclamation")">ZARZĄDZANIE REKLAMACJAMI</a></strong></li>
+                                <li><a href="@Url.Action("AllReservations", "Reservation")">ZARZĄDZANIE REZERWACJAMI</a></li>
                             }
-                        </ul>
-                    </div>
+                            if (User.IsInRole("Receptionist"))
+                            {
+                                <li><strong><a href="@Url.Action("AllReservations", "Reservation")">ZARZĄDZANIE REZERWACJAMI</a></strong></li>
+                                <li><strong><a href="@Url.Action("AllBills", "Bill")">ZARZĄDZANIE RACHUNKAMI</a></strong></li>
+                            }
+                            if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
+                            {
+                                <li><strong><a href="@Url.Action("Index", "Reservation")">MOJE REZERWACJE</a></strong></li>
+                                <li><a href="@Url.Action("AllReclamations", "Reclamation")">REKLAMACJE</a></li>
+                            }
+
+                            <li><a href="@Url.Action("Index", "Manage")">MOJE KONTO</a></li>
+
+                            <li><a href="#" id="logoutFormSubmit">WYLOGUJ</a></li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("LOGOWANIE", "Login", "Account")</li>
+                            <li>@Html.ActionLink("REJESTRACJA", "Login", "Account")</li>
+                        }
+                    </ul>
+                    <script>
+                        var logout_btn = document.getElementById('logoutFormSubmit');
+                        logout_btn.addEventListener("click", function () {
+                            document.getElementById('logoutForm').submit();
+                        });
+                    </script>
+                </div>
             </div>
         </div>
     </nav>

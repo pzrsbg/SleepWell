@@ -1,0 +1,101 @@
+﻿@model SleepWell.ViewModels.AllReclamationsViewModel
+@{
+    ViewBag.Title = "Wszystkie reklamacje";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+
+<div class="col-8">
+    @if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
+    {
+        <h2>Coś nie tak? <span class="green">Złóż reklamację!</span></h2>
+        using (Html.BeginForm("NewReclamation", "Reclamation", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-6">
+                    <select class="selectpicker uslugi-dropdown" data-live-search="true" title="Wybierz rezerwację" data-width="100%" data-style="">
+                        @if (Model.NewReclamation.Reservations != null)
+                        {
+                            foreach (var s in Model.NewReclamation.Reservations)
+                            {
+                                <option value="@s.ReservationId" id="serviceId-@s.ReservationId">Numer: @s.ReservationId</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-6">
+                    @Html.TextAreaFor(o => o.NewReclamation.Reclamation.Reason)
+                    @Html.LabelFor(o => o.NewReclamation.Reclamation.Reason)
+                </div>
+            </div>
+            <div class="row justify-content-between">
+                <div class="col-auto">
+                    <input type="submit" value="Złóż reklamację">
+                </div>
+            </div>
+        }
+    }
+    <h2>Oto wszystkie <span class="green">reklamacje</span></h2>
+    @if (Model.Reclamations != null)
+    {
+        foreach (var r in Model.Reclamations)
+        {
+            <div class="row myorder-row">
+                <div class="col-12 short">
+                    <div class="statusbar">
+                        <h3>Reklamacja z dnia: <span class="green">@r.DateCreated</span></h3>
+                        <h3 class="status">
+                            Status: @if (r.DateFinished.Year > 0)
+                            {
+                                if (r.Accepted)
+                                {<span class="green">Zaakceptowano</span> }
+                                else
+                                { <span>Odrzucono</span> }
+                            }
+                            else
+                            { <span>Oczekuje</span>}
+                        </h3>
+                    </div>
+                    <div class="row order-form-group myorders justify-content-between">
+                        <div class="col-8">
+                            <p>@r.Reason</p>
+                            <p>Dotyczy rezerwacji nr: @r.ReservationId</p>
+                        </div>
+                        <div class="col-4 order-details">
+                            <h3>
+                                Status: @if (r.DateFinished.Year > 0)
+                                {
+                                    if (r.Accepted)
+                                    {<span class="green">Zaakceptowano</span> }
+                                    else
+                                    { <span>Odrzucono</span> }
+                                }
+                                else
+                                { <span>Oczekuje</span>}
+                            </h3>
+                            <div class="flex-column">
+                                <p>Data utworzenia:</p>
+                                <p class="big">@r.DateCreated.ToString("dd.MM.yyyy")</p>
+                            </div>
+                            <div class="flex-column">
+                                <p>Data zakończenia:</p>
+                                <p class="big">@r.DateFinished.ToString("dd.MM.yyyy")</p>
+                            </div>
+                        </div>
+                        <div class="long-to-short">ROZWIŃ</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            Nie znaleziono żadnych reklamacji.
+        </div>
+    }
+</div>
+@section ScriptsBottom {
+    <script src="~/Scripts/bootstrap-select.min.js"></script>
+    <script src="~/Scripts/additional/myorders.js"></script>
+}
