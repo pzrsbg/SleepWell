@@ -21,7 +21,7 @@
 
             @foreach (var bill in Model)
                 {
-            <tr @if (bill.PaymentState == SpodIglyMVC.Models.PaymentState.New) { <text> class="newBill" </text>       }>
+            <tr @if (bill.BillState == SpodIglyMVC.Models.BillState.New) { <text> class="newBill" </text>       }>
                 <td>
                     <strong>Nr rachunku: </strong>@bill.BillId
                 </td>
@@ -37,12 +37,12 @@
                                 using (Html.BeginForm("ChangeBillState", "Manage"))
                                 {
                     @Html.HiddenFor(o => bill.BillId)
-                    @Html.EnumDropDownListFor(o => bill.PaymentState, new { @class = "billstateddl" })
+                    @Html.EnumDropDownListFor(o => bill.BillState, new { @class = "billstateddl" })
                                 }
                             }
                             else
                             {
-                    @Html.DisplayFor(o => bill.PaymentState)
+                    @Html.DisplayFor(o => bill.BillState)
                             }
 
                 </td>
@@ -123,7 +123,7 @@
         var action = f.attr("action");
         var serializedForm = f.serialize();
         $.post(action, serializedForm).done(function (data) {
-            if (data == '@SpodIglyMVC.Models.PaymentState.New.ToString()') {
+            if (data == '@SpodIglyMVC.Models.BillState.New.ToString()') {
                 tr.addClass("newBill")
             }
             else {
