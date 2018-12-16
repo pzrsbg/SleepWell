@@ -1,0 +1,399 @@
+﻿@model SleepWell.ViewModels.AllReservationsViewModel
+@{
+    ViewBag.Title = "Wszystkie rezerwacje";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+@using SleepWell.Models
+
+@using System.Text.RegularExpressions
+@if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
+{
+    <div class="col-12">
+        <h2>Moje <span class="green">rezerwacje</span></h2>
+        @if (Model.MyReservations.Count > 0)
+        {
+            foreach (var r in Model.MyReservations)
+            {
+                <div class="row myorder-row">
+                    <div class="col-12 short">
+                        <div class="statusbar">
+                            <h3>Rezerwacja od <span class="green">@r.StartDate.ToShortDateString()</span> do <span class="green">@r.EndDate.ToShortDateString()</span></h3>
+                            <h3 class="status">Status: <span class="green">@r.Room.RoomName</span></h3>
+                        </div>
+                        <div class="row order-form-group myorders justify-content-between">
+                            <div class="col-8">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4>
+                                            @r.Room.RoomName (Standard @if (r.Room.RoomStandard == RoomStandard.Economic)
+                                            {<span>Ekonomiczny</span> }
+                                            else if (r.Room.RoomStandard == RoomStandard.BedAndBreakfast)
+                                            { <span>Bed&amp;Breakfast</span> }
+                                            else if (r.Room.RoomStandard == RoomStandard.Exclusive)
+                                            { <span>Exclusive</span>})
+                                        </h4>
+                                        <p></p>
+                                        <p>Liczba osób: @r.Persons</p>
+                                        <p>Cena 1 nocy za osobę: @r.Room.UnitCost zł</p>
+                                        <p>Liczba nocy: @{ TimeSpan nights = r.EndDate - r.StartDate; } @nights.Days</p>
+                                        <p><strong>@Html.ActionLink("Sprawdź rachunek do tej rezerwacji", "ViewBill", "Bill", new { reservationId = r.ReservationId })</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 order-details">
+                                <h3>
+                                    Status:
+                                    @if (r.ReservationState == ReservationState.New)
+                                    {
+                                        <span>Nowa</span>
+                                    }
+                                    else if (r.ReservationState == ReservationState.Accepted)
+                                    {
+                                        <span class="green">Zaakceptowano</span>
+                                    }
+                                    else if (r.ReservationState == ReservationState.InProgress)
+                                    {
+                                        <span>W trakcie</span>
+                                    }
+                                    else if (r.ReservationState == ReservationState.Completed)
+                                    {
+                                        <span class="green">Zakończona</span>
+                                    }
+                                </h3>
+                                <div class="flex-column">
+                                    <p>Koszt pobytu:</p>@{ decimal total = r.Room.UnitCost * r.Persons * nights.Days; }
+                                    <p class="big"><span id="service-sum">@total</span> zł</p>
+                                </div>
+                                <div class="flex-column">
+                                    <p>Początek pobytu:</p>
+                                    <p class="big" id="service-date">@r.StartDate.ToShortDateString()</p>
+                                </div>
+                                <div class="flex-column">
+                                    <p>Koniec pobytu:</p>
+                                    <p class="big" id="service-date">@r.EndDate.ToShortDateString()</p>
+                                </div>
+                            </div>
+                            <div class="long-to-short">ROZWIŃ</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak rezerwacji
+            </div>
+        }
+    </div>
+    @section ScriptsBottom {
+        <script src="~/Scripts/additional/myorders.js"></script>
+    }
+}
+
+
+
+@if (User.IsInRole("Manager") || User.IsInRole("Receptionist"))
+{
+    <div class="col-12">
+        <h2>Nowe <span class="green">rezerwacje</span></h2>
+        @if (Model.NewReservations.Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var r in Model.NewReservations)
+                {
+                    <li class="wb">
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">@r.ReservationId | @r.Room.RoomName</p>
+                            </span>
+                            <p class="date">@r.StartDate.ToShortDateString()</p>
+                            <span class="buttons">
+                                <a href="#" data-order-id="@r.ReservationId" class="confirm"><i class="fas fa-check"></i></a>
+                                @using (@Html.BeginForm("ReservationStatus", "Reservation", new { reservationId = r.ReservationId, reservationState = ReservationState.Accepted }, FormMethod.Post, new { id = "acceptReservation-" + r.ReservationId, style = "display: none;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                }
+                                <a href="#" data-order-id="@r.ReservationId" class="delete"><i class="far fa-trash-alt"></i></a>
+                                @using (@Html.BeginForm("DeleteReservation", "Reservation", new { reservationId = r.ReservationId }, FormMethod.Post, new { id = "deleteReservation-" + r.ReservationId, style = "display: none;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                }
+                            </span>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Dane rezerwującego:</strong><br />
+                                        @r.User.FirstName @r.User.LastName<br />
+                                        @r.User.Address<br />
+                                        @r.User.PostalCode @r.User.City<br />
+                                        @if (r.User.IsCompany)
+                                        {
+                                            <strong>Firma:</strong><br />
+                                            @r.User.CompanyName<br />
+                                            <span>NIP: </span>@r.User.NIP
+                                        }
+                                    </p>
+                                    <p>
+                                        <strong>Liczba osób: </strong>@r.Persons<br />
+                                        @{ TimeSpan nights = r.EndDate - r.StartDate; }
+                                        @{ decimal total = r.Room.UnitCost * r.Persons * nights.Days; }
+                                        Należność za pobyt: <strong>@total zł</strong>
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(r.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @r.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @r.Room.RoomName<br />
+                                        Standard: @r.Room.RoomStandard<br />
+                                        Rezerwacja od: @r.StartDate.ToShortDateString()<br />
+                                        Rezerwacja do: @r.EndDate.ToShortDateString()
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak nowych rezerwacji
+            </div>
+        }
+    </div>
+
+    <div class="col-12">
+        <h2>Przyjęte <span class="green">rezerwacje</span></h2>
+        @if (Model.AcceptedReservations.Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var r in Model.AcceptedReservations)
+                {
+                    <li class="wb">
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">@r.ReservationId | @r.Room.RoomName</p>
+                            </span>
+                            <p class="date">@r.StartDate.ToShortDateString()</p>
+                            <span class="buttons">
+                                <a href="#" data-order-id="@r.ReservationId" class="finish"><i class="fas fa-check"></i></a>
+                                @using (@Html.BeginForm("ReservationStatus", "Reservation", new { reservationId = r.ReservationId, reservationState = ReservationState.InProgress }, FormMethod.Post, new { id = "activateReservation-" + r.ReservationId, style = "display: none;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                }
+                                <a href="#" data-order-id="@r.ReservationId" class="edit"><i class="fas fa-edit"></i></a>
+                                @using (@Html.BeginForm("EditReservation", "Reservation", FormMethod.Get, new { id = "editReservation-" + r.ReservationId, style = "display: none;" }))
+                                {
+                                    <input type="hidden" name="reservationId" value="@r.ReservationId" />
+                                }
+                            </span>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Dane rezerwującego:</strong><br />
+                                        @r.User.FirstName @r.User.LastName<br />
+                                        @r.User.Address<br />
+                                        @r.User.PostalCode @r.User.City<br />
+                                        @if (r.User.IsCompany)
+                                        {
+                                            <strong>Firma:</strong><br />
+                                            @r.User.CompanyName<br />
+                                            <span>NIP: </span>@r.User.NIP
+                                        }
+                                    </p>
+                                    <p>
+                                        <strong>Liczba osób: </strong>@r.Persons<br />
+                                        @{ TimeSpan nights = r.EndDate - r.StartDate; }
+                                        @{ decimal total = r.Room.UnitCost * r.Persons * nights.Days; }
+                                        Należność za pobyt: <strong>@total zł</strong>
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(r.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @r.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @r.Room.RoomName<br />
+                                        Standard: @r.Room.RoomStandard<br />
+                                        Rezerwacja od: @r.StartDate.ToShortDateString()<br />
+                                        Rezerwacja do: @r.EndDate.ToShortDateString()
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak przyjętych rezerwacji
+            </div>
+        }
+    </div>
+
+    <div class="col-12">
+        <h2>Trwające <span class="green">pobyty</span></h2>
+        @if (Model.InProgressReservations.Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var r in Model.InProgressReservations)
+                {
+                    <li class="wb">
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">@r.ReservationId | @r.Room.RoomName</p>
+                            </span>
+                            <p class="date">Koniec pobytu: @r.EndDate.ToShortDateString()</p>
+                            <span class="buttons">
+                                <a href="#" data-order-id="@r.ReservationId" class="receive"><i class="fas fa-check"></i></a>
+                                @using (@Html.BeginForm("ReservationStatus", "Reservation", new { reservationId = r.ReservationId, reservationState = ReservationState.Completed }, FormMethod.Post, new { id = "completeReservation-" + r.ReservationId, style = "display: none;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                }
+                                <a href="#" data-order-id="@r.ReservationId" class="edit"><i class="fas fa-edit"></i></a>
+                                @using (@Html.BeginForm("EditReservation", "Reservation", new { reservationId = r.ReservationId }, FormMethod.Post, new { id = "editReservation-" + r.ReservationId, style = "display: none;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                }
+                            </span>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Dane rezerwującego:</strong><br />
+                                        @r.User.FirstName @r.User.LastName<br />
+                                        @r.User.Address<br />
+                                        @r.User.PostalCode @r.User.City<br />
+                                        @if (r.User.IsCompany)
+                                        {
+                                            <strong>Firma:</strong><br />
+                                            @r.User.CompanyName<br />
+                                            <span>NIP: </span>@r.User.NIP
+                                        }
+                                    </p>
+                                    <p>
+                                        <strong>Liczba osób: </strong>@r.Persons<br />
+                                        @{ TimeSpan nights = r.EndDate - r.StartDate; }
+                                        @{ decimal total = r.Room.UnitCost * r.Persons * nights.Days; }
+                                        Należność za pobyt: <strong>@total zł</strong>
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(r.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @r.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @r.Room.RoomName<br />
+                                        Standard: @r.Room.RoomStandard<br />
+                                        Rezerwacja od: @r.StartDate.ToShortDateString()<br />
+                                        Rezerwacja do: @r.EndDate.ToShortDateString()
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak trwających pobytów
+            </div>
+        }
+    </div>
+
+    <div class="col-12">
+        <h2>Zakończone <span class="green">pobyty</span></h2>
+        @if (Model.CompletedReservations.Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var r in Model.CompletedReservations)
+                {
+                    <li>
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">@r.ReservationId | @r.Room.RoomName</p>
+                            </span>
+                            <p class="date">Koniec pobytu: @r.EndDate.ToShortDateString()</p>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Dane rezerwującego:</strong><br />
+                                        @r.User.FirstName @r.User.LastName<br />
+                                        @r.User.Address<br />
+                                        @r.User.PostalCode @r.User.City<br />
+                                        @if (r.User.IsCompany)
+                                        {
+                                            <strong>Firma:</strong><br />
+                                            @r.User.CompanyName<br />
+                                            <span>NIP: </span>@r.User.NIP
+                                        }
+                                    </p>
+                                    <p>
+                                        <strong>Liczba osób: </strong>@r.Persons<br />
+                                        @{ TimeSpan nights = r.EndDate - r.StartDate; }
+                                        @{ decimal total = r.Room.UnitCost * r.Persons * nights.Days; }
+                                        Należność za pobyt: <strong>@total zł</strong>
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(r.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @r.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @r.Room.RoomName<br />
+                                        Standard: @r.Room.RoomStandard<br />
+                                        Rezerwacja od: @r.StartDate.ToShortDateString()<br />
+                                        Rezerwacja do: @r.EndDate.ToShortDateString()
+                                    </p>
+                                    <p><strong>@Html.ActionLink("Zobacz rachunek", "ViewBill", "Bill", new { reservationId = r.ReservationId })</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak zakończonych pobytów
+            </div>
+        }
+    </div>
+
+
+    @section ScriptsBottom {
+        <script src="~/Scripts/additional/adminOrderList.js"></script>
+    }
+}

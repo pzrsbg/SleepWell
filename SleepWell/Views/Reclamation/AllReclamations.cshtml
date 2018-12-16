@@ -3,67 +3,71 @@
     ViewBag.Title = "Wszystkie reklamacje";
     Layout = "~/Views/Shared/_FrontLayout.cshtml";
 }
-
-<div class="col-8">
-    @if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
-    {
-        <h2>Coś nie tak? <span class="green">Złóż reklamację!</span></h2>
-        using (Html.BeginForm("NewReclamation", "Reclamation", FormMethod.Post))
+@using System.Text.RegularExpressions
+@if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
+{
+    <div class="col-8">
+        @if (Model.Success.HasValue)
         {
-            @Html.AntiForgeryToken()
-            <div class="row">
-                <div class="col-6">
-                    <select class="selectpicker uslugi-dropdown" data-live-search="true" title="Wybierz rezerwację" data-width="100%" data-style="">
-                        @if (Model.NewReclamation.Reservations != null)
-                        {
-                            foreach (var s in Model.NewReclamation.Reservations)
-                            {
-                                <option value="@s.ReservationId" id="serviceId-@s.ReservationId">Numer: @s.ReservationId</option>
-                            }
-                        }
-                    </select>
+            if (Model.Success.Value)
+            {
+                <div class="alert alert-success" role="alert">
+                    Reklamacja złożona!
                 </div>
-                <div class="col-6">
-                    @Html.TextAreaFor(o => o.NewReclamation.Reclamation.Reason)
-                    @Html.LabelFor(o => o.NewReclamation.Reclamation.Reason)
+            }
+            else
+            {
+                <div class="alert alert-warning" role="alert">
+                    Wystąpił błąd
                 </div>
-            </div>
-            <div class="row justify-content-between">
-                <div class="col-auto">
-                    <input type="submit" value="Złóż reklamację">
-                </div>
+            }
+        }
+
+        <h2>Coś nie tak? <span class="green">Złóż reklamację!</span></h2>
+        @if (Model.NewReclamation.Reservations.Count > 0)
+        {
+
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                Nie składałeś żadnej rezerwacji, dlatego nie możesz złożyć reklamacji.
             </div>
         }
-    }
-    <h2>Oto wszystkie <span class="green">reklamacje</span></h2>
-    @if (Model.Reclamations != null)
-    {
-        foreach (var r in Model.Reclamations)
+        @using (Html.BeginForm("NewReclamation", "Reclamation", FormMethod.Post))
         {
-            <div class="row myorder-row">
-                <div class="col-12 short">
-                    <div class="statusbar">
-                        <h3>Reklamacja z dnia: <span class="green">@r.DateCreated</span></h3>
-                        <h3 class="status">
-                            Status: @if (r.DateFinished.Year > 0)
-                            {
-                                if (r.Accepted)
-                                {<span class="green">Zaakceptowano</span> }
-                                else
-                                { <span>Odrzucono</span> }
-                            }
-                            else
-                            { <span>Oczekuje</span>}
-                        </h3>
-                    </div>
-                    <div class="row order-form-group myorders justify-content-between">
-                        <div class="col-8">
-                            <p>@r.Reason</p>
-                            <p>Dotyczy rezerwacji nr: @r.ReservationId</p>
-                        </div>
-                        <div class="col-4 order-details">
-                            <h3>
-                                Status: @if (r.DateFinished.Year > 0)
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-12">
+                <select class="selectpicker" name="NewReclamation.Reclamation.ReservationId" data-live-search="true" title="Wybierz rezerwację" data-width="100%" data-style="">
+                    @foreach (var s in Model.NewReclamation.Reservations)
+                    {
+                        <option value="@s.ReservationId" id="serviceId-@s.ReservationId">Numer: @s.ReservationId | @s.StartDate.ToShortDateString() - @s.EndDate.ToShortDateString()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12">
+                @Html.TextAreaFor(o => o.NewReclamation.Reclamation.Reason)
+                @Html.LabelFor(o => o.NewReclamation.Reclamation.Reason)
+            </div>
+        </div>
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <input type="submit" value="Złóż reklamację">
+            </div>
+        </div>
+        }
+        <h2>Oto wszystkie <span class="green">reklamacje</span></h2>
+        @if (Model.Reclamations.Count > 0)
+        {
+            foreach (var r in Model.Reclamations)
+            {
+                <div class="row myorder-row">
+                    <div class="col-12 short">
+                        <div class="statusbar">
+                            <h3>Reklamacja z dnia: <span class="green">@r.DateCreated</span></h3>
+                            <h3 class="status">
+                                Status: @if (r.DateFinished.HasValue)
                                 {
                                     if (r.Accepted)
                                     {<span class="green">Zaakceptowano</span> }
@@ -73,29 +77,190 @@
                                 else
                                 { <span>Oczekuje</span>}
                             </h3>
-                            <div class="flex-column">
-                                <p>Data utworzenia:</p>
-                                <p class="big">@r.DateCreated.ToString("dd.MM.yyyy")</p>
-                            </div>
-                            <div class="flex-column">
-                                <p>Data zakończenia:</p>
-                                <p class="big">@r.DateFinished.ToString("dd.MM.yyyy")</p>
-                            </div>
                         </div>
-                        <div class="long-to-short">ROZWIŃ</div>
+                        <div class="row order-form-group myorders justify-content-between">
+                            <div class="col-8">
+                                <p>@r.Reason</p>
+                                <p>
+                                    Dotyczy rezerwacji nr: @r.ReservationId<br />
+                                    Data rozpoczęcia pobytu: @r.Reservation.StartDate.ToShortDateString()<br />
+                                    Data zakończenia pobytu: @r.Reservation.EndDate.ToShortDateString()<br />
+                                    Pokój: @r.Reservation.Room.RoomName<br />
+                                    Standard: @r.Reservation.Room.RoomStandard
+                                </p>
+                            </div>
+                            <div class="col-4 order-details">
+                                <h3>
+                                    Status: @if (r.DateFinished.HasValue)
+                                    {
+                                        if (r.Accepted)
+                                        {<span class="green">Zaakceptowano</span> }
+                                        else
+                                        { <span>Odrzucono</span> }
+                                    }
+                                    else
+                                    { <span>Oczekuje</span>}
+                                </h3>
+                                <div class="flex-column">
+                                    <p>Data utworzenia:</p>
+                                    <p class="big">@r.DateCreated.Value.ToShortDateString()</p>
+                                </div>
+                                @if (r.DateFinished.HasValue)
+                                {
+                                    <div class="flex-column">
+                                        <p>Data zakończenia:</p>
+                                        <p class="big">@r.DateFinished.Value.ToShortDateString()</p>
+                                    </div>
+                                }
+                            </div>
+                            <div class="long-to-short">ROZWIŃ</div>
+                        </div>
                     </div>
                 </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                Nie znaleziono żadnych reklamacji.
             </div>
         }
+    </div>
+    @section ScriptsBottom {
+        <script src="~/Scripts/bootstrap-select.min.js"></script>
+        <link rel="stylesheet" href="~/Content/bootstrap-select.min.css">
+        <script src="~/Scripts/additional/myorders.js"></script>
     }
-    else
-    {
-        <div class="alert alert-info" role="alert">
-            Nie znaleziono żadnych reklamacji.
-        </div>
+}
+
+@if (User.IsInRole("Manager"))
+{
+    <div class="col-12">
+        <h2>Reklamacje <span class="green">do rozpatrzenia</span></h2>
+        @if (Model.Reclamations.Where(r => r.DateFinished.HasValue == false).ToList().Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var r in Model.Reclamations.Where(r => r.DateFinished.HasValue == false).ToList())
+                {
+                    <li>
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">@r.ReservationId | @r.Reservation.Room.RoomName</p>
+                            </span>
+                            <p class="date">@r.DateCreated.Value.ToShortDateString()</p>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Treść reklamacji:</strong><br>
+                                        @r.Reason
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(r.Reservation.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @r.Reservation.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @r.Reservation.Room.RoomName<br />
+                                        Rezerwacja od: @r.Reservation.StartDate<br />
+                                        Rezerwacja do: @r.Reservation.EndDate
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row justify-content-end buttons">
+                                <div class="col-auto">
+                                    @using (Html.BeginForm("EditReclamation", "Reclamation", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="reclamationId" value="@r.ReclamationId" />
+                                        <input type="hidden" name="action" value="discard" />
+                                        <input type="submit" class="discard-button" value="ODRZUĆ REKLAMACJĘ">
+                                    }
+                                </div>
+                                <div class="col-auto">
+                                    @using (Html.BeginForm("EditReclamation", "Reclamation", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="reclamationId" value="@r.ReclamationId" />
+                                        <input type="hidden" name="action" value="accept" />
+                                        <input type="submit" value="AKCEPTUJ REKLAMACJĘ">
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak reklamacji do rozpatrzenia
+            </div>
+        }
+    </div>
+    <div class="col-12">
+        <h2>Reklamacje <span class="green">rozpatrzone</span></h2>
+        @if (Model.Reclamations.Where(r => r.DateFinished.HasValue).ToList().Count > 0)
+        {
+        <ul class="orderListAdmin">
+            @foreach (var r in Model.Reclamations.Where(r => r.DateFinished.HasValue == true).ToList())
+            {
+                <li>
+                    <div class="bar">
+                        <span class="group">
+                            <a href="#" class="more">v</a>
+                            <p class="number">@r.ReservationId | @r.Reservation.Room.RoomName</p>
+                        </span>
+                        <p class="date">
+                            @if (r.DateFinished.HasValue)
+                            {
+                                if (r.Accepted)
+                                {<span class="green">Zaakceptowano</span> }
+                                else
+                                { <span>Odrzucono</span>}
+                            }</p>
+                    </div>
+                    <div class="more-info">
+                        <div class="row justify-content-between">
+                            <div class="col-7">
+                                <p>
+                                    <strong>Treść reklamacji:</strong><br>
+                                    @r.Reason
+                                </p>
+                            </div>
+                            <div class="col-5">
+                                <p>
+                                    <strong>Kontakt:</strong><br>
+                                    - telefon: @Regex.Replace(r.Reservation.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                    - email: @r.Reservation.User.Email<br>
+                                </p>
+                                <p>
+                                    Dotyczy pokoju:<br />
+                                    @r.Reservation.Room.RoomName<br />
+                                    Rezerwacja od: @r.Reservation.StartDate<br />
+                                    Rezerwacja do: @r.Reservation.EndDate
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak reklamacji
+            </div>
+        }
+    </div>
+    @section ScriptsBottom {
+        <script src="~/Scripts/additional/adminOrderList.js"></script>
     }
-</div>
-@section ScriptsBottom {
-    <script src="~/Scripts/bootstrap-select.min.js"></script>
-    <script src="~/Scripts/additional/myorders.js"></script>
 }

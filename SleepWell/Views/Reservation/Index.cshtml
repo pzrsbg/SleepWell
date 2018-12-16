@@ -1,0 +1,99 @@
+﻿@model SleepWell.ViewModels.RoomSearch
+@using SleepWell.Helpers
+@{
+    ViewBag.Title = "Rezerwacja online";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+
+<div class="col-12">
+    @if (ViewBag.Error)
+    {
+        <div class="alert alert-warning" role="alert">
+            @ViewBag.ErrorContent
+        </div>
+    }
+
+    <h2>Zarezerwuj pokój <span class="green">online</span></h2>
+
+    @using (Html.BeginForm("Index", "Reservation", FormMethod.Get))
+    {
+        <div class="row justify-content-between">
+            <div class="col-9">
+                OD: <input class="datepicker startdate-picker" style="width: 200px" name="startDate" value="@if (Model.StartDate.HasValue) { @Model.StartDate.Value.ToString("yyyy-MM-dd"); }">
+                DO: <input class="datepicker enddate-picker" style="width: 200px" name="endDate" value="@if (Model.EndDate.HasValue) { @Model.EndDate.Value.ToString("yyyy-MM-dd"); }">
+            </div>
+            <div class="col-auto">
+                LICZBA OSÓB: <input type="number" name="persons" style="width: 60px" value="@if (Model.Persons.HasValue) { @Model.Persons.Value; }">
+            </div>
+        </div>
+
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <input type="submit" class="type-2" value="Szukaj dostępnych pokoi">
+            </div>
+        </div>
+    }
+
+    @if (Model.Rooms.Count > 0)
+    {
+        <h3>Dostępne pokoje:</h3>
+        <div class="row justify-content-start">
+            @foreach (var r in Model.Rooms)
+            {
+                <div class="col-4" style="margin: 16px 0">
+                    <div class="room">
+                        <div class="room-img"><img src="@Url.RoomPhoto(r.PhotoUrl)" /></div>
+                        <div class="info">
+                            <h4>@r.RoomName <span>cena od<br /><strong>@r.UnitCost zł/noc</strong></span></h4>
+                            <p>
+                                Standard: @switch (r.RoomStandard)
+                                {
+                                    case SleepWell.Models.RoomStandard.BedAndBreakfast:
+                                        <span class="standard-bab">Bed&amp;Breakfast</span>
+                                        break;
+                                    case SleepWell.Models.RoomStandard.Economic:
+                                        <span class="standard-eco">Oszczędny</span>
+                                        break;
+                                    case SleepWell.Models.RoomStandard.Exclusive:
+                                        <span class="standard-exc">Exclusive</span>
+                                        break;
+                                }
+                                <br />Liczba osób: @r.MaxPeople
+                            </p>
+                        </div>
+                        <div class="room-button">
+                            @using (Html.BeginForm("NewReservation", "Reservation", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="roomId" value="@r.RoomId" />
+                                <input type="hidden" name="startDate" value="@Model.StartDate" />
+                                <input type="hidden" name="endDate" value="@Model.EndDate" />
+                                <input type="hidden" name="persons" value="@Model.Persons" />
+                                <input type="submit" value="ZAREZERWUJ">
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>
+
+@section ScriptsBottom {
+    <script src="~/Scripts/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="~/Content/bootstrap-datepicker.min.css">
+    <script src="~/Scripts/bootstrap-select.min.js"></script>
+    <link rel="stylesheet" href="~/Content/bootstrap-select.min.css">
+    <script>
+        $('.startdate-picker').datepicker({
+                                format: 'yyyy-mm-dd',
+            startDate: '0d'
+        });
+        $('.enddate-picker').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: '1d'
+        })
+
+    </script>
+}

@@ -37,22 +37,22 @@ namespace SleepWell.Controllers
         }
 
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public BillState ChangeBillState(Bill bill)
-        {
-            Bill billToModify = db.Bills.Find(bill.BillId);
-            billToModify.BillState = bill.BillState;
-            db.SaveChanges();
+        //[HttpPost]
+        //[Authorize(Roles = "Admin")]
+        //public BillState ChangeBillState(Bill bill)
+        //{
+        //    Bill billToModify = db.Bills.Find(bill.BillId);
+        //    billToModify.BillState = bill.BillState;
+        //    db.SaveChanges();
 
-            if (billToModify.BillState == BillState.Shipped)
-            {
+        //    if (billToModify.BillState == BillState.Shipped)
+        //    {
       
-            }
+        //    }
 
 
-            return bill.BillState;
-        }
+        //    return bill.BillState;
+        //}
 
     }
 

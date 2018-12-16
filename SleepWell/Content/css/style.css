@@ -147,14 +147,14 @@ button, input[type="submit"] {
     }
 
     button.type-2, input[type="submit"].type-2 {
-        color: #1f1f1f;
-        background: #e8e8e8;
-        border: 2px solid #1f1f1f;
+        color: #ffffff;
+        background: #484848;
+        width: 280px;
+        font-weight: 400;
     }
 
         button.type-2:hover, input[type="submit"].type-2:hover {
-            background: #fff;
-            border-color: #000;
+            background: #1f1f1f;
         }
 
 .loginBtn--facebook {
@@ -175,7 +175,11 @@ button, input[type="submit"] {
     background: rgba(192, 62, 50, 0.9);
 }
 
-input[type="text"], input[type="password"], input[type="email"], textarea {
+input.datepicker, div.datepicker {
+    border-radius: 0;
+}
+
+input[type="text"], input[type="password"], input[type="email"], textarea, input.datepicker, input[type="number"] {
     width: 100%;
     height: 42px;
     background: #e8e8e8;
@@ -197,7 +201,7 @@ textarea {
     min-height: 173px;
 }
 
-    input[type="text"] + label, input[type="password"] + label, input[type="email"] + label, textarea + label {
+    input[type="text"] + label, input[type="password"] + label, input[type="email"] + label, textarea + label, input.datepicker + label {
         position: absolute;
         top: 50%;
         transform: translateY(-60%);
@@ -210,16 +214,16 @@ textarea {
         transition: 150ms ease-out all;
     }
 
-    input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, textarea:focus {
+    input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, textarea:focus, input.datepicker:focus {
         cursor: text;
         box-shadow: 1px -1px 3px 0 rgba(62, 93, 188, 1);
     }
 
-    input[type="text"].filled, input[type="password"].filled, input[type="email"].filled, textarea.filled {
+    input[type="text"].filled, input[type="password"].filled, input[type="email"].filled, textarea.filled, input.datepicker.filled {
         box-shadow: 1px -1px 3px 0 rgba(103, 142, 58, 1);
     }
 
-        input[type="text"]:focus + label, input[type="password"]:focus + label, input[type="email"]:focus + label, input[type="text"].filled + label, input[type="password"].filled + label, input[type="email"].filled + label, textarea:focus + label, textarea.filled + label {
+        input[type="text"]:focus + label, input[type="password"]:focus + label, input[type="email"]:focus + label, input[type="text"].filled + label, input[type="password"].filled + label, input[type="email"].filled + label, textarea:focus + label, textarea.filled + label, input.datepicker:focus + label, input.datepicker.filled + label {
             font-size: 80%;
             top: 0;
             transform: translateY(0);
@@ -539,7 +543,7 @@ ul.orderListAdmin {
             transition: 0.2s ease-in-out all;
             overflow: hidden;
         }
-            ul.orderListAdmin li .bar:hover, ul.orderListAdmin li.active .bar {
+            ul.orderListAdmin li.wb .bar:hover, ul.orderListAdmin li.wb.active .bar {
                 padding-right: 126px;
             }
             ul.orderListAdmin li .bar span.group {
@@ -590,11 +594,19 @@ ul.orderListAdmin {
                 ul.orderListAdmin li .bar .buttons a:hover {
                     text-decoration: none;
                 }
-            ul.orderListAdmin li .bar a.confirm, ul.orderListAdmin li .bar a.edit, ul.orderListAdmin li .bar a.finish, ul.orderListAdmin li .bar a.receive {
+            ul.orderListAdmin li .bar a.confirm, ul.orderListAdmin li .bar a.finish, ul.orderListAdmin li .bar a.receive {
                 background: #678e3a;
             }
-                ul.orderListAdmin li .bar a.confirm:hover, ul.orderListAdmin li .bar a.edit:hover, ul.orderListAdmin li .bar a.finish:hover, ul.orderListAdmin li .bar a.receive:hover {
+                ul.orderListAdmin li .bar a.confirm:hover, ul.orderListAdmin li .bar a.finish:hover, ul.orderListAdmin li .bar a.receive:hover {
                     color: #678e3a;
+                    background: #f1f1f1;
+                }
+            ul.orderListAdmin li .bar a.edit {
+                background: #006fa2;
+                color: #ffcb43;
+            }
+                ul.orderListAdmin li .bar a.edit:hover {
+                    color: #006fa2;
                     background: #f1f1f1;
                 }
             ul.orderListAdmin li .bar a.delete {
@@ -614,14 +626,19 @@ ul.orderListAdmin {
                 }
     ul.orderListAdmin li > div.more-info { display: none; }
         ul.orderListAdmin li.active > div.more-info {
-            display: flex;
-            width: calc(100%-52px);
-            background: #cdcdcd;
+            display: block;
+            width: calc(100% - 52px);
             margin-left: 52px;
             border-left: 1px solid #f6f6f6;
             box-sizing: border-box;
+            padding-top: 10px;
+            padding-left: 5px;
+
+        }
+        ul.orderListAdmin li.wb.active > div.more-info {
             padding: 10px 5px;
         }
+        ul.orderListAdmin li.active > div.more-info .buttons > .col-auto { padding: 0; }
         ul.orderListAdmin li.active > div.more-info > .row { width: 100%; margin: 0; }
         ul.orderListAdmin li.active > div.more-info ul.services-list-admin { width: 100%; }
             ul.orderListAdmin li.active > div.more-info ul.services-list-admin > li {
@@ -639,3 +656,79 @@ ul.orderListAdmin {
                 overflow: hidden;
             }
             ul.orderListAdmin li.active > div.more-info ul.services-list-admin > li span:after { content: 'ZŁ'}
+        ul.orderListAdmin li.active {
+            background: #cdcdcd;
+        }
+
+.room {
+    background: #1a1a1a;
+    color: #f6f6f6;
+}
+
+.room-img {
+    width: 100%;
+    height: 224px;
+    overflow: hidden;
+}
+
+.room-img img {
+    min-width: 100%;
+    min-height: 224px;
+}
+
+.room .info { padding: 11px 12px; }
+
+.room h4 {
+    font-weight: 600;
+    font-size: 18px;
+    color: #f6f6f6;
+    text-transform: none;
+}
+
+.room span.standard-bab {
+    color: #678e3a;
+}
+.room span.standard-eco {
+    color: #e3e54c;
+}
+.room span.standard-exc {
+    color: #ff8a00;
+}
+
+.room h4 span { float: right; font-weight: 400; font-size: 12px; }
+.room h4 span strong { font-weight: 600; font-size: 18px; }
+.room p { font-style: italic; font-size: 14px; margin-bottom: 0; }
+.room form { margin: 0 !important; }
+    .room form input[type="submit"] {
+        width: 100%;
+        background: #494949;
+        font-size: 20px;
+        color: #f6f6f6;
+        font-weight: 300;
+        height: 50px;
+    }
+        .room form input[type="submit"]:hover {
+            background: #ed1c24;
+        }
+
+ul.orderListAdmin li.active > div.more-info .buttons form {
+    margin: 0 !important;
+}
+    ul.orderListAdmin li.active > div.more-info .buttons form input[type="submit"] {
+        width: 210px;
+    }
+    ul.orderListAdmin li.active > div.more-info .buttons form input[type="submit"].discard-button {
+        color: #ffffff;
+        text-transform: uppercase;
+        font-size: 100%;
+        font-weight: 600;
+        font-family: 'Open Sans', sans-serif;
+        border: none;
+        height: 42px;
+        cursor: pointer;
+        transition: 0.2s all linear;
+        background: #c03e32;
+    }
+        ul.orderListAdmin li.active > div.more-info .buttons form input[type="submit"].discard-button:hover {
+            background: #ed1c24;
+        }

@@ -12,9 +12,10 @@ namespace SleepWell.Models
         [Required]
         public int ReservationId { get; set; }
         [Required]
+        [Display(Name = "Treść reklamacji")]
         public string Reason { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateFinished { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public DateTime? DateFinished { get; set; }
         public bool Accepted { get; set; }
 
         public virtual Reservation Reservation { get; set; }

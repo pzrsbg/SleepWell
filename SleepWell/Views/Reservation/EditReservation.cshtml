@@ -1,0 +1,54 @@
+﻿@model SleepWell.ViewModels.EditReservationViewModel
+@{
+    ViewBag.Title = "Edycja rezerwacji";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+@using SleepWell.Helpers
+
+<div class="col-12">
+    <h2>Edytuj <span class="green">rezerwację</span></h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                Pamiętaj, że możesz jedynie zawęzić termin rezerwacji oraz zmienić liczbę osób (nieprzekraczając limitu dla pokoju)
+            </div>
+        </div>
+    </div>
+    @using (Html.BeginForm("EditReservation", "Reservation", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row justify-content-between">
+            <div class="col-9">
+                OD: <input class="datepicker startdate-picker" style="width: 200px" name="@Html.NameFor(m => m.StartDate)" value="@Model.StartDate.ToString("yyyy-MM-dd")">
+                DO: <input class="datepicker enddate-picker" style="width: 200px" name="@Html.NameFor(m => m.EndDate)" value="@Model.EndDate.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-auto">
+                LICZBA OSÓB: <input type="number" name="@Html.NameFor(m => m.Persons)" style="width: 60px" value="@Model.Persons">
+            </div>
+        </div>
+        @Html.HiddenFor(m => m.ReservationId)
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <input type="submit" class="type-2" value="Zmień rezerwację">
+            </div>
+        </div>
+    }
+</div>
+
+@section ScriptsBottom {
+    <script src="~/Scripts/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="~/Content/bootstrap-datepicker.min.css">
+    <script src="~/Scripts/bootstrap-select.min.js"></script>
+    <link rel="stylesheet" href="~/Content/bootstrap-select.min.css">
+    <script>
+        $('.startdate-picker').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: '0d'
+        });
+        $('.enddate-picker').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: '1d'
+        })
+
+    </script>
+}

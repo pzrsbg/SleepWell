@@ -21,7 +21,7 @@
                 <div class="col-auto menu-top">
                     <a href="@Url.Action("StaticPage", "Home", new { viewname = "Onas" }, null)">O PENSJONACIE</a>
                     <a href="@Url.Action("StaticPage", "Home", new { viewname = "Kontakt" }, null)">KONTAKT</a>
-                    <a href="@Url.Action("Index", "Home")" class="red-btn">REZERWACJA ONLINE</a>
+                    <a href="@Url.Action("Index", "Reservation")" class="red-btn">REZERWACJA ONLINE</a>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
                             }
                             if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
                             {
-                                <li><strong><a href="@Url.Action("Index", "Reservation")">MOJE REZERWACJE</a></strong></li>
+                                <li><strong><a href="@Url.Action("AllReservations", "Reservation")">MOJE REZERWACJE</a></strong></li>
                                 <li><a href="@Url.Action("AllReclamations", "Reclamation")">REKLAMACJE</a></li>
                             }
 
@@ -66,12 +66,14 @@
                             <li>@Html.ActionLink("REJESTRACJA", "Login", "Account")</li>
                         }
                     </ul>
-                    <script>
-                        var logout_btn = document.getElementById('logoutFormSubmit');
-                        logout_btn.addEventListener("click", function () {
-                            document.getElementById('logoutForm').submit();
-                        });
-                    </script>
+                    @if (Request.IsAuthenticated) {
+                        <script>
+                            var logout_btn = document.getElementById('logoutFormSubmit');
+                            logout_btn.addEventListener("click", function () {
+                                document.getElementById('logoutForm').submit();
+                            });
+                        </script>
+                    }
                 </div>
             </div>
         </div>

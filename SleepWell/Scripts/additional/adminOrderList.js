@@ -3,11 +3,11 @@
         $(this).parent().parent().parent().toggleClass('active');
     });
 
-    var deleteOrders = $('.buttons a.delete');
-    var confirmOrders = $('.buttons a.confirm');
-    var finishOrders = $('.buttons a.finish');
-    var editOrders = $('.buttons a.edit');
-    var receiveOrders = $('.buttons a.receive');
+    var deleteReservations = $('.buttons a.delete');
+    var acceptReservations = $('.buttons a.confirm');
+    var activateReservations = $('.buttons a.finish');
+    var editReservations = $('.buttons a.edit');
+    var completeReservations = $('.buttons a.receive');
 
     var linkButtons = function (buttons, info, formId) {
         if (buttons.length > 0) {
@@ -22,11 +22,11 @@
                 });
             }
         }
-    }
+    };
 
-    linkButtons(deleteOrders, 'Na pewno chcesz usunąć to zlecenie', '#deleteOrder-');
-    linkButtons(confirmOrders, 'Na pewno chcesz zaakceptować to zlecenie?', '#confirmOrder-');
-    linkButtons(editOrders, 'Na pewno chcesz zaakceptować to zlecenie do naprawy?', '#editOrder-');
-    linkButtons(finishOrders, 'Na pewno chcesz zakończyć to zlecenie?', '#finishOrder-');
-    linkButtons(receiveOrders, 'Klient odebrał zlecenie?', '#receiveOrder-');
+    linkButtons(deleteReservations, 'Na pewno chcesz usunąć tę rezerwację?', '#deleteReservation-');
+    linkButtons(acceptReservations, 'Zaakceptować rezerwację?', '#acceptReservation-');
+    linkButtons(editReservations, 'Na pewno chcesz edytować tę rezerwację?', '#editReservation-');
+    linkButtons(activateReservations, 'Rozpocząć pobyt?', '#activateReservation-');
+    linkButtons(completeReservations, 'Zakończyć pobyt?', '#completeReservation-');
 });
