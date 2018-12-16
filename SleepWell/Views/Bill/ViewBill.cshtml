@@ -1,0 +1,53 @@
+﻿@model SleepWell.Models.Bill
+@{
+    ViewBag.Title = "Zobacz rachunek";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+@using SleepWell.Models
+
+<div class="col-8">
+    <h2>Moje <span class="green">rachunki</span></h2>
+    @if (Model != null)
+    {
+        <div class="row myorder-row">
+            <div class="col-12">
+                <div class="statusbar">
+                    <h3>Rachunek nr <span class="green">@Model.BillId</span></h3>
+                    <h3 class="status">Do rezerwacji: <span class="green">@Model.ReservationId</span></h3>
+                </div>
+                <div class="row order-form-group myorders justify-content-between">
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col-12">
+                                <p></p>
+                                <p>Cena 1 nocy za osobę: @Model.Reservation.Room.UnitCost zł</p>
+                                <p>Liczba nocy: @{ TimeSpan nights = Model.Reservation.EndDate - Model.Reservation.StartDate; } @nights.Days</p>
+                                <p>Liczba osób: @Model.Reservation.Persons</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 order-details">
+                        <div class="flex-column">
+                            @if (Model.PaymentState == PaymentState.Unpaid)
+                            {
+                                <p>Do zapłaty:</p>
+                            }
+                            else
+                            {
+                                <p>Zapłacono:</p>
+                            }
+                            <p class="big"><span id="service-sum">@Model.Total</span> zł</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-primary" role="alert">
+            Brak wystawionych rachunków
+        </div>
+    }
+</div>
+

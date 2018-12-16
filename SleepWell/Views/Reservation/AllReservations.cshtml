@@ -36,7 +36,14 @@
                                         <p>Liczba osób: @r.Persons</p>
                                         <p>Cena 1 nocy za osobę: @r.Room.UnitCost zł</p>
                                         <p>Liczba nocy: @{ TimeSpan nights = r.EndDate - r.StartDate; } @nights.Days</p>
-                                        <p><strong>@Html.ActionLink("Sprawdź rachunek do tej rezerwacji", "ViewBill", "Bill", new { reservationId = r.ReservationId })</strong></p>
+                                        @if (r.ReservationState == ReservationState.Completed)
+                                        {
+                                            <p><strong>@Html.ActionLink("Sprawdź rachunek do tej rezerwacji", "ViewBill", new { controller = "Bill", reservationId = r.ReservationId })</strong></p>
+                                        }
+                                        else
+                                        {
+                                            <p><strong>@Html.ActionLink("Zmień rezerwację", "EditReservation", new { reservationId = r.ReservationId })</strong></p>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -270,9 +277,9 @@
                                     @Html.AntiForgeryToken()
                                 }
                                 <a href="#" data-order-id="@r.ReservationId" class="edit"><i class="fas fa-edit"></i></a>
-                                @using (@Html.BeginForm("EditReservation", "Reservation", new { reservationId = r.ReservationId }, FormMethod.Post, new { id = "editReservation-" + r.ReservationId, style = "display: none;" }))
+                                @using (@Html.BeginForm("EditReservation", "Reservation", FormMethod.Get, new { id = "editReservation-" + r.ReservationId, style = "display: none;" }))
                                 {
-                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="reservationId" value="@r.ReservationId" />
                                 }
                             </span>
                         </div>
@@ -376,7 +383,7 @@
                                         Rezerwacja od: @r.StartDate.ToShortDateString()<br />
                                         Rezerwacja do: @r.EndDate.ToShortDateString()
                                     </p>
-                                    <p><strong>@Html.ActionLink("Zobacz rachunek", "ViewBill", "Bill", new { reservationId = r.ReservationId })</strong></p>
+                                    <p><strong>@Html.ActionLink("Zobacz rachunek", "ViewBill", new { controller = "Bill", reservationId = r.ReservationId })</strong></p>
                                 </div>
                             </div>
                         </div>

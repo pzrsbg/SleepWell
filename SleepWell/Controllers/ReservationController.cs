@@ -50,6 +50,13 @@ namespace SleepWell.Controllers
         }
 
         [Authorize]
+        [HttpGet]
+        public ActionResult NewReservation(DateTime startDate, DateTime endDate, int persons)
+        {
+            return RedirectToAction("Index", new { startDate, endDate, persons });
+        }
+
+        [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public ActionResult NewReservation(int roomId, DateTime startDate, DateTime endDate, int persons)
@@ -130,6 +137,14 @@ namespace SleepWell.Controllers
             }
             if (modified)
             {
+                bool isBillAlreadyCreated = db.Bills.Any(b => b.ReservationId == reservation.ReservationId);
+                if (isBillAlreadyCreated)
+                {
+                    int billId = db.Bills.Where(b => b.ReservationId == reservation.ReservationId).Single().BillId;
+                    var controller = DependencyResolver.Current.GetService<BillController>();
+                    var result = controller.EditBill(billId, reservation);
+                }
+
                 db.Entry(updateReservation).State = System.Data.Entity.EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("AllReservations");
@@ -158,12 +173,13 @@ namespace SleepWell.Controllers
             reservation.ReservationState = reservationState;
             db.SaveChanges();
 
-            if(reservationState == ReservationState.Completed)
+            if(reservationState == ReservationState.InProgress)
             {
                 bool isBillAlreadyCreated = db.Bills.Any(b => b.ReservationId == reservationId);
                 if (!isBillAlreadyCreated)
                 {
-                    // stwórz Bill
+                    var controller = DependencyResolver.Current.GetService<BillController>();
+                    var result = controller.NewBill(reservation);
                 }
             }
 

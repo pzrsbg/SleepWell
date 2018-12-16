@@ -1,0 +1,205 @@
+﻿@model SleepWell.ViewModels.AllBillsViewModel
+@{
+    ViewBag.Title = "Wszystkie rachunki";
+    Layout = "~/Views/Shared/_FrontLayout.cshtml";
+}
+@using SleepWell.Models
+@using System.Text.RegularExpressions
+
+@if (!(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist")))
+{
+    <div class="col-8">
+        <h2>Moje <span class="green">rachunki</span></h2>
+        @if (Model.UserBills.Count > 0)
+        {
+            foreach (var b in Model.UserBills)
+            {
+                <div class="row myorder-row">
+                    <div class="col-12 short">
+                        <div class="statusbar">
+                            <h3>Rachunek nr <span class="green">@b.BillId</span></h3>
+                            <h3 class="status">Do rezerwacji: <span class="green">@b.ReservationId</span></h3>
+                        </div>
+                        <div class="row order-form-group myorders justify-content-between">
+                            <div class="col-8">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p></p>
+                                        <p>Cena 1 nocy za osobę: @b.Reservation.Room.UnitCost zł</p>
+                                        <p>Liczba nocy: @{ TimeSpan nights = b.Reservation.EndDate - b.Reservation.StartDate; } @nights.Days</p>
+                                        <p>Liczba osób: @b.Reservation.Persons</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 order-details">
+                                <div class="flex-column">
+                                    @if (b.PaymentState == PaymentState.Unpaid)
+                                    {
+                                        <p>Do zapłaty:</p>
+                                    }
+                                    else
+                                    {
+                                        <p>Zapłacono:</p>
+                                    }
+                                    <p class="big"><span id="service-sum">@b.Total</span> zł</p>
+                                </div>
+                            </div>
+                            <div class="long-to-short">ROZWIŃ</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak wystawionych rachunków
+            </div>
+        }
+    </div>
+    @section ScriptsBottom {
+        <script src="~/Scripts/additional/myorders.js"></script>
+    }
+}
+@if (User.IsInRole("Receptionist"))
+{
+    <div class="col-12">
+        <h2>Rachunki <span class="green">niezapłacone</span></h2>
+        @if (Model.AllUnPaidBills.Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var b in Model.AllUnPaidBills)
+                {
+                    <li>
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">Rezerwacja: @b.ReservationId | @b.BillId</p>
+                            </span>
+                            <p class="date">@b.Total zł</p>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Dane rezerwującego:</strong><br />
+                                        @b.Reservation.User.FirstName @b.Reservation.User.LastName<br />
+                                        @b.Reservation.User.Address<br />
+                                        @b.Reservation.User.PostalCode @b.Reservation.User.City<br />
+                                        @if (b.Reservation.User.IsCompany)
+                                        {
+                                            <strong>Firma:</strong><br />
+                                            @b.Reservation.User.CompanyName<br />
+                                            <span>NIP: </span>@b.Reservation.User.NIP
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(b.Reservation.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @b.Reservation.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @b.Reservation.Room.RoomName<br />
+                                        Pobyt od: @b.Reservation.StartDate.ToShortDateString()<br />
+                                        Pobyt do: @b.Reservation.EndDate.ToShortDateString()
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row justify-content-end buttons">
+                                <div class="col-auto">
+                                    @using (Html.BeginForm("BillStatus", "Bill", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="billId" value="@b.BillId" />
+                                        <input type="hidden" name="action" value="acceptPayment" />
+                                        <input type="submit" value="ZAPŁACONY">
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak rachunków
+            </div>
+        }
+    </div>
+    <div class="col-12">
+        <h2>Rachunki <span class="green">zapłacone</span></h2>
+        @if (Model.AllPaidBills.Count > 0)
+        {
+            <ul class="orderListAdmin">
+                @foreach (var b in Model.AllPaidBills)
+                {
+                    <li>
+                        <div class="bar">
+                            <span class="group">
+                                <a href="#" class="more">v</a>
+                                <p class="number">Rezerwacja: @b.ReservationId | @b.BillId</p>
+                            </span>
+                            <p class="date">@b.Total zł</p>
+                        </div>
+                        <div class="more-info">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <p>
+                                        <strong>Dane rezerwującego:</strong><br />
+                                        @b.Reservation.User.FirstName @b.Reservation.User.LastName<br />
+                                        @b.Reservation.User.Address<br />
+                                        @b.Reservation.User.PostalCode @b.Reservation.User.City<br />
+                                        @if (b.Reservation.User.IsCompany)
+                                        {
+                                            <strong>Firma:</strong><br />
+                                            @b.Reservation.User.CompanyName<br />
+                                            <span>NIP: </span>@b.Reservation.User.NIP
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-5">
+                                    <p>
+                                        <strong>Kontakt:</strong><br>
+                                        - telefon: @Regex.Replace(b.Reservation.User.PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3")<br>
+                                        - email: @b.Reservation.User.Email<br>
+                                    </p>
+                                    <p>
+                                        Dotyczy pokoju:<br />
+                                        @b.Reservation.Room.RoomName<br />
+                                        Pobyt od: @b.Reservation.StartDate.ToShortDateString()<br />
+                                        Pobyt do: @b.Reservation.EndDate.ToShortDateString()
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row justify-content-end buttons">
+                                <div class="col-auto">
+                                    @using (Html.BeginForm("BillStatus", "Bill", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="billId" value="@b.BillId" />
+                                        <input type="hidden" name="action" value="declinePayment" />
+                                        <input type="submit" class="discard-button" value="NIEZAPŁACONY">
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-primary" role="alert">
+                Brak rachunków
+            </div>
+        }
+    </div>
+    @section ScriptsBottom {
+        <script src="~/Scripts/additional/adminOrderList.js"></script>
+    }
+}
